@@ -230,6 +230,7 @@ public class TestFilesetCatalog extends TestBase {
                 "mock comment",
                 Fileset.Type.MANAGED,
                 "mock location",
+                "",
                 ImmutableMap.of("k1", "v1"));
     Assertions.assertNotNull(loadedFileset);
     assertFileset(mockFileset, loadedFileset);
@@ -249,6 +250,7 @@ public class TestFilesetCatalog extends TestBase {
                     "mock comment",
                     Fileset.Type.MANAGED,
                     "mock location",
+                    "",
                     ImmutableMap.of("k1", "v1")),
         "fileset already exists");
 
@@ -265,6 +267,7 @@ public class TestFilesetCatalog extends TestBase {
                     "mock comment",
                     Fileset.Type.MANAGED,
                     "mock location",
+                    "",
                     ImmutableMap.of("k1", "v1")),
         "internal error");
   }

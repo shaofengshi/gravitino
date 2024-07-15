@@ -90,10 +90,13 @@ public class FilesetEventDispatcher implements FilesetDispatcher {
       String comment,
       Fileset.Type type,
       String storageLocation,
+      String storageLocation2,
       Map<String, String> properties)
       throws NoSuchSchemaException, FilesetAlreadyExistsException {
     try {
-      Fileset fileset = dispatcher.createFileset(ident, comment, type, storageLocation, properties);
+      Fileset fileset =
+          dispatcher.createFileset(
+              ident, comment, type, storageLocation, storageLocation2, properties);
       eventBus.dispatchEvent(
           new CreateFilesetEvent(
               PrincipalUtils.getCurrentUserName(), ident, new FilesetInfo(fileset)));
@@ -104,7 +107,14 @@ public class FilesetEventDispatcher implements FilesetDispatcher {
               PrincipalUtils.getCurrentUserName(),
               ident,
               e,
-              new FilesetInfo(ident.name(), comment, type, storageLocation, properties, null)));
+              new FilesetInfo(
+                  ident.name(),
+                  comment,
+                  type,
+                  storageLocation,
+                  storageLocation2,
+                  properties,
+                  null)));
       throw e;
     }
   }

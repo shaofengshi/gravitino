@@ -127,6 +127,7 @@ public class GravitinoVirtualFileSystemIT extends AbstractIT {
             "fileset comment",
             Fileset.Type.MANAGED,
             storageLocation,
+            "",
             new HashMap<>());
     Assertions.assertTrue(catalog.asFilesetCatalog().filesetExists(filesetIdent));
 
@@ -161,6 +162,7 @@ public class GravitinoVirtualFileSystemIT extends AbstractIT {
             "fileset comment",
             Fileset.Type.MANAGED,
             storageLocation,
+            "",
             new HashMap<>());
     Assertions.assertTrue(catalog.asFilesetCatalog().filesetExists(filesetIdent));
 
@@ -220,6 +222,7 @@ public class GravitinoVirtualFileSystemIT extends AbstractIT {
             "fileset comment",
             Fileset.Type.MANAGED,
             storageLocation,
+            "",
             new HashMap<>());
     Assertions.assertTrue(catalog.asFilesetCatalog().filesetExists(filesetIdent));
 
@@ -259,6 +262,7 @@ public class GravitinoVirtualFileSystemIT extends AbstractIT {
             "fileset comment",
             Fileset.Type.MANAGED,
             storageLocation,
+            "",
             new HashMap<>());
     Assertions.assertTrue(catalog.asFilesetCatalog().filesetExists(filesetIdent));
 
@@ -301,6 +305,7 @@ public class GravitinoVirtualFileSystemIT extends AbstractIT {
             "fileset comment",
             Fileset.Type.MANAGED,
             storageLocation,
+            "",
             new HashMap<>());
     Assertions.assertTrue(catalog.asFilesetCatalog().filesetExists(filesetIdent));
 
@@ -357,6 +362,7 @@ public class GravitinoVirtualFileSystemIT extends AbstractIT {
             "fileset comment",
             Fileset.Type.MANAGED,
             storageLocation,
+            "",
             new HashMap<>());
     Assertions.assertTrue(catalog.asFilesetCatalog().filesetExists(filesetIdent));
 
@@ -391,6 +397,7 @@ public class GravitinoVirtualFileSystemIT extends AbstractIT {
             "fileset comment",
             Fileset.Type.MANAGED,
             storageLocation,
+            "",
             new HashMap<>());
     Assertions.assertTrue(catalog.asFilesetCatalog().filesetExists(filesetIdent));
 

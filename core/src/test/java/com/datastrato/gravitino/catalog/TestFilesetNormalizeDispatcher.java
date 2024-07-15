@@ -55,7 +55,7 @@ public class TestFilesetNormalizeDispatcher extends TestOperationDispatcher {
     NameIdentifier filesetIdent = NameIdentifier.of(filesetNs, "filesetNAME");
     Fileset createdFileset =
         filesetNormalizeDispatcher.createFileset(
-            filesetIdent, "comment", Fileset.Type.MANAGED, "fileset41", props);
+            filesetIdent, "comment", Fileset.Type.MANAGED, "fileset41", "", props);
     Assertions.assertEquals(filesetIdent.name().toLowerCase(), createdFileset.name());
 
     // test case-insensitive in loading
@@ -103,7 +103,7 @@ public class TestFilesetNormalizeDispatcher extends TestOperationDispatcher {
             IllegalArgumentException.class,
             () ->
                 filesetNormalizeDispatcher.createFileset(
-                    filesetIdent, "comment", Fileset.Type.MANAGED, "fileset41", props));
+                    filesetIdent, "comment", Fileset.Type.MANAGED, "fileset41", "", props));
     Assertions.assertEquals(
         "The FILESET name '*' is reserved. Illegal name: *", exception.getMessage());
 
@@ -113,7 +113,7 @@ public class TestFilesetNormalizeDispatcher extends TestOperationDispatcher {
             IllegalArgumentException.class,
             () ->
                 filesetNormalizeDispatcher.createFileset(
-                    filesetIdent2, "comment", Fileset.Type.MANAGED, "fileset41", props));
+                    filesetIdent2, "comment", Fileset.Type.MANAGED, "fileset41", "", props));
     Assertions.assertEquals(
         "The FILESET name 'a?' is illegal. Illegal name: a?", exception.getMessage());
   }

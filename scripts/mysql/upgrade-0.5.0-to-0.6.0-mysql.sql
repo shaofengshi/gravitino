@@ -64,3 +64,5 @@ CREATE TABLE IF NOT EXISTS `tag_relation_meta` (
     KEY `idx_tid` (`tag_id`),
     KEY `idx_mid` (`metadata_object_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT 'tag metadata object relation';
+
+ALTER TABLE `fileset_version_info` ADD COLUMN `storage_location2` MEDIUMTEXT COMMENT 'fileset secondary storage location';

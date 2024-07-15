@@ -32,6 +32,7 @@ public final class FilesetInfo {
   @Nullable private final String comment;
   private final Fileset.Type type;
   private final String storageLocation;
+  private final String storageLocation2;
   private final Map<String, String> properties;
   @Nullable private final Audit audit;
 
@@ -46,6 +47,7 @@ public final class FilesetInfo {
         fileset.comment(),
         fileset.type(),
         fileset.storageLocation(),
+        fileset.storageLocation2(),
         fileset.properties(),
         fileset.auditInfo());
   }
@@ -57,6 +59,7 @@ public final class FilesetInfo {
    * @param comment An optional comment about the fileset. Can be {@code null}.
    * @param type The type of the fileset.
    * @param storageLocation The storage location of the fileset.
+   * @param storageLocation2 The secondary storage location of the fileset.
    * @param properties A map of properties associated with the fileset. Can be {@code null}.
    * @param audit Optional audit information. Can be {@code null}.
    */
@@ -65,12 +68,14 @@ public final class FilesetInfo {
       String comment,
       Fileset.Type type,
       String storageLocation,
+      String storageLocation2,
       Map<String, String> properties,
       Audit audit) {
     this.name = name;
     this.comment = comment;
     this.type = type;
     this.storageLocation = storageLocation;
+    this.storageLocation2 = storageLocation2;
     this.properties = properties == null ? ImmutableMap.of() : ImmutableMap.copyOf(properties);
     this.audit = audit;
   }
@@ -110,6 +115,15 @@ public final class FilesetInfo {
    */
   public String storageLocation() {
     return storageLocation;
+  }
+
+  /**
+   * Returns the secondary storage location of the fileset.
+   *
+   * @return The secondary storage location.
+   */
+  public String storageLocation2() {
+    return storageLocation2;
   }
 
   /**

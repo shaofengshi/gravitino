@@ -44,6 +44,11 @@ public class FilesetEntity implements Entity, Auditable, HasIdentifier {
   public static final Field STORAGE_LOCATION =
       Field.required(
           "storage_location", String.class, "The storage location of the fileset entity.");
+  public static final Field STORAGE_LOCATION2 =
+      Field.optional(
+          "storage_location2",
+          String.class,
+          "The secondary storage location of the fileset entity.");
   public static final Field AUDIT_INFO =
       Field.required("audit_info", AuditInfo.class, "The audit details of the fileset entity.");
   public static final Field PROPERTIES =
@@ -60,6 +65,8 @@ public class FilesetEntity implements Entity, Auditable, HasIdentifier {
   private Fileset.Type type;
 
   private String storageLocation;
+
+  private String storageLocation2;
 
   private AuditInfo auditInfo;
 
@@ -80,6 +87,7 @@ public class FilesetEntity implements Entity, Auditable, HasIdentifier {
     fields.put(COMMENT, comment);
     fields.put(TYPE, type);
     fields.put(STORAGE_LOCATION, storageLocation);
+    fields.put(STORAGE_LOCATION2, storageLocation2);
     fields.put(AUDIT_INFO, auditInfo);
     fields.put(PROPERTIES, properties);
 
@@ -164,6 +172,15 @@ public class FilesetEntity implements Entity, Auditable, HasIdentifier {
   }
 
   /**
+   * Returns the secondary storage location of the fileset entity.
+   *
+   * @return The secondary storage location of the fileset entity.
+   */
+  public String storageLocation2() {
+    return storageLocation2;
+  }
+
+  /**
    * Returns the properties of the fileset entity.
    *
    * @return The properties of the fileset entity.
@@ -184,13 +201,15 @@ public class FilesetEntity implements Entity, Auditable, HasIdentifier {
         && Objects.equals(comment, that.comment)
         && Objects.equals(type, that.type)
         && Objects.equals(storageLocation, that.storageLocation)
+        && Objects.equals(storageLocation2, that.storageLocation2)
         && Objects.equals(auditInfo, that.auditInfo)
         && Objects.equals(properties, that.properties);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, name, comment, type, storageLocation, auditInfo, properties);
+    return Objects.hash(
+        id, name, comment, type, storageLocation, storageLocation2, auditInfo, properties);
   }
 
   public static class Builder {
@@ -266,6 +285,19 @@ public class FilesetEntity implements Entity, Auditable, HasIdentifier {
      */
     public Builder withStorageLocation(String storageLocation) {
       fileset.storageLocation = storageLocation;
+      return this;
+    }
+
+    /**
+     * Sets the secondary storage location of the fileset entity.
+     *
+     * <p>Only the EXTERNAL type of fileset entity requires a storage location.
+     *
+     * @param storageLocation2 The storage location of the fileset entity.
+     * @return The builder instance.
+     */
+    public Builder withStorageLocation2(String storageLocation2) {
+      fileset.storageLocation2 = storageLocation2;
       return this;
     }
 

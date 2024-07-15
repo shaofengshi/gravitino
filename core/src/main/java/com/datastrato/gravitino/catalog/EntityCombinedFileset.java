@@ -74,6 +74,11 @@ public final class EntityCombinedFileset implements Fileset {
   }
 
   @Override
+  public String storageLocation2() {
+    return fileset.storageLocation2();
+  }
+
+  @Override
   public Map<String, String> properties() {
     return fileset.properties().entrySet().stream()
         .filter(p -> !hiddenProperties.contains(p.getKey()))

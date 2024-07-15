@@ -99,6 +99,7 @@ public class FilesetOperationDispatcher extends OperationDispatcher implements F
    * @param comment The comment of the fileset.
    * @param type The type of the fileset.
    * @param storageLocation The storage location of the fileset.
+   * @param storageLocation2 The secondary storage location of the fileset.
    * @param properties The properties of the fileset.
    * @return The created fileset metadata
    * @throws NoSuchSchemaException If the schema does not exist.
@@ -110,6 +111,7 @@ public class FilesetOperationDispatcher extends OperationDispatcher implements F
       String comment,
       Fileset.Type type,
       String storageLocation,
+      String storageLocation2,
       Map<String, String> properties)
       throws NoSuchSchemaException, FilesetAlreadyExistsException {
     NameIdentifier catalogIdent = getCatalogIdentifier(ident);
@@ -132,7 +134,14 @@ public class FilesetOperationDispatcher extends OperationDispatcher implements F
             catalogIdent,
             c ->
                 c.doWithFilesetOps(
-                    f -> f.createFileset(ident, comment, type, storageLocation, updatedProperties)),
+                    f ->
+                        f.createFileset(
+                            ident,
+                            comment,
+                            type,
+                            storageLocation,
+                            storageLocation2,
+                            updatedProperties)),
             NoSuchSchemaException.class,
             FilesetAlreadyExistsException.class);
     return EntityCombinedFileset.of(createdFileset)

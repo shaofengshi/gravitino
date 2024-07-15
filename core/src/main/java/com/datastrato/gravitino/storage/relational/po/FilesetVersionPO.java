@@ -32,6 +32,7 @@ public class FilesetVersionPO {
   private String filesetComment;
   private String properties;
   private String storageLocation;
+  private String storageLocation2;
   private Long deletedAt;
 
   public Long getId() {
@@ -68,6 +69,10 @@ public class FilesetVersionPO {
 
   public String getStorageLocation() {
     return storageLocation;
+  }
+
+  public String getStorageLocation2() {
+    return storageLocation2;
   }
 
   public Long getDeletedAt() {
@@ -107,6 +112,7 @@ public class FilesetVersionPO {
         getFilesetComment(),
         getProperties(),
         getStorageLocation(),
+        getStorageLocation2(),
         getDeletedAt());
   }
 
@@ -159,6 +165,11 @@ public class FilesetVersionPO {
 
     public Builder withStorageLocation(String storageLocation) {
       filesetVersionPO.storageLocation = storageLocation;
+      return this;
+    }
+
+    public Builder withStorageLocation2(String storageLocation2) {
+      filesetVersionPO.storageLocation2 = storageLocation2;
       return this;
     }
 

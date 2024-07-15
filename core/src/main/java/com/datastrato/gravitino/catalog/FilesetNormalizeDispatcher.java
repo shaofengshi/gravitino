@@ -69,10 +69,16 @@ public class FilesetNormalizeDispatcher implements FilesetDispatcher {
       String comment,
       Fileset.Type type,
       String storageLocation,
+      String storageLocation2,
       Map<String, String> properties)
       throws NoSuchSchemaException, FilesetAlreadyExistsException {
     return dispatcher.createFileset(
-        normalizeNameIdentifier(ident), comment, type, storageLocation, properties);
+        normalizeNameIdentifier(ident),
+        comment,
+        type,
+        storageLocation,
+        storageLocation2,
+        properties);
   }
 
   @Override

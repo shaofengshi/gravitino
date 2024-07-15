@@ -43,7 +43,7 @@ public interface FilesetVersionMapper {
       "INSERT INTO "
           + VERSION_TABLE_NAME
           + "(metalake_id, catalog_id, schema_id, fileset_id,"
-          + " version, fileset_comment, properties, storage_location,"
+          + " version, fileset_comment, properties, storage_location, storage_location2,"
           + " deleted_at)"
           + " VALUES("
           + " #{filesetVersion.metalakeId},"
@@ -54,6 +54,7 @@ public interface FilesetVersionMapper {
           + " #{filesetVersion.filesetComment},"
           + " #{filesetVersion.properties},"
           + " #{filesetVersion.storageLocation},"
+          + " #{filesetVersion.storageLocation2},"
           + " #{filesetVersion.deletedAt}"
           + " )")
   void insertFilesetVersion(@Param("filesetVersion") FilesetVersionPO filesetVersionPO);
@@ -62,7 +63,7 @@ public interface FilesetVersionMapper {
       "INSERT INTO "
           + VERSION_TABLE_NAME
           + "(metalake_id, catalog_id, schema_id, fileset_id,"
-          + " version, fileset_comment, properties, storage_location,"
+          + " version, fileset_comment, properties, storage_location, storage_location2,"
           + " deleted_at)"
           + " VALUES("
           + " #{filesetVersion.metalakeId},"
@@ -73,6 +74,7 @@ public interface FilesetVersionMapper {
           + " #{filesetVersion.filesetComment},"
           + " #{filesetVersion.properties},"
           + " #{filesetVersion.storageLocation},"
+          + " #{filesetVersion.storageLocation2},"
           + " #{filesetVersion.deletedAt}"
           + " )"
           + " ON DUPLICATE KEY UPDATE"
@@ -84,6 +86,7 @@ public interface FilesetVersionMapper {
           + " fileset_comment = #{filesetVersion.filesetComment},"
           + " properties = #{filesetVersion.properties},"
           + " storage_location = #{filesetVersion.storageLocation},"
+          + " storage_location2 = #{filesetVersion.storageLocation2},"
           + " deleted_at = #{filesetVersion.deletedAt}")
   void insertFilesetVersionOnDuplicateKeyUpdate(
       @Param("filesetVersion") FilesetVersionPO filesetVersionPO);

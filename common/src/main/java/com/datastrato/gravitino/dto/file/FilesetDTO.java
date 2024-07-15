@@ -47,6 +47,9 @@ public class FilesetDTO implements Fileset {
   @JsonProperty("storageLocation")
   private String storageLocation;
 
+  @JsonProperty("storageLocation2")
+  private String storageLocation2;
+
   @JsonProperty("properties")
   private Map<String, String> properties;
 
@@ -75,6 +78,11 @@ public class FilesetDTO implements Fileset {
   }
 
   @Override
+  public String storageLocation2() {
+    return storageLocation2;
+  }
+
+  @Override
   public Map<String, String> properties() {
     return properties;
   }
@@ -90,12 +98,14 @@ public class FilesetDTO implements Fileset {
       String comment,
       Type type,
       String storageLocation,
+      String storageLocation2,
       Map<String, String> properties,
       AuditDTO audit) {
     Preconditions.checkArgument(StringUtils.isNotBlank(name), "name cannot be null or empty");
     Preconditions.checkNotNull(type, "type cannot be null");
     Preconditions.checkNotNull(audit, "audit cannot be null");
 
-    return new FilesetDTO(name, comment, type, storageLocation, properties, audit);
+    return new FilesetDTO(
+        name, comment, type, storageLocation, storageLocation2, properties, audit);
   }
 }

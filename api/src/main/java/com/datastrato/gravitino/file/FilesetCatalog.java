@@ -79,6 +79,7 @@ public interface FilesetCatalog {
    * @param comment The comment of the fileset.
    * @param type The type of the fileset.
    * @param storageLocation The storage location of the fileset.
+   * @param storageLocation2 The secondary storage location of the fileset.
    * @param properties The properties of the fileset.
    * @return The created fileset metadata
    * @throws NoSuchSchemaException If the schema does not exist.
@@ -89,6 +90,7 @@ public interface FilesetCatalog {
       String comment,
       Fileset.Type type,
       String storageLocation,
+      String storageLocation2,
       Map<String, String> properties)
       throws NoSuchSchemaException, FilesetAlreadyExistsException;
 

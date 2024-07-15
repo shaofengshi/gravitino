@@ -67,6 +67,7 @@ public class TestFilesetEvent {
         fileset.comment(),
         fileset.type(),
         fileset.storageLocation(),
+        fileset.storageLocation2(),
         fileset.properties());
     Event event = dummyEventListener.popEvent();
     Assertions.assertEquals(identifier, event.identifier());
@@ -131,6 +132,7 @@ public class TestFilesetEvent {
                 fileset.comment(),
                 fileset.type(),
                 fileset.storageLocation(),
+                fileset.storageLocation2(),
                 fileset.properties()));
     Event event = dummyEventListener.popEvent();
     Assertions.assertEquals(identifier, event.identifier());
@@ -218,6 +220,7 @@ public class TestFilesetEvent {
             any(NameIdentifier.class),
             any(String.class),
             any(Fileset.Type.class),
+            any(String.class),
             any(String.class),
             any(Map.class)))
         .thenReturn(fileset);

@@ -100,6 +100,14 @@ public interface Fileset extends Auditable {
   String storageLocation();
 
   /**
+   * Get the secondary storage location of the file or directory path that is managed by this
+   * fileset object.
+   *
+   * @return The secondary storage location of the fileset object.
+   */
+  String storageLocation2();
+
+  /**
    * @return The properties of the fileset object. Empty map is returned if no properties are set.
    */
   default Map<String, String> properties() {

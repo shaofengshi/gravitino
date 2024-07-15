@@ -602,7 +602,12 @@ public class HadoopCatalogIT extends AbstractIT {
     return catalog
         .asFilesetCatalog()
         .createFileset(
-            NameIdentifier.of(schemaName, filesetName), comment, type, storageLocation, properties);
+            NameIdentifier.of(schemaName, filesetName),
+            comment,
+            type,
+            storageLocation,
+            "",
+            properties);
   }
 
   private void assertFilesetExists(String filesetName) throws IOException {

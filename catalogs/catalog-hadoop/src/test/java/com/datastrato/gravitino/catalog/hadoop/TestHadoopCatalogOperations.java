@@ -980,7 +980,7 @@ public class TestHadoopCatalogOperations {
       StringIdentifier stringId = StringIdentifier.fromId(idGenerator.nextId());
       filesetProps = Maps.newHashMap(StringIdentifier.newPropertiesWithId(stringId, filesetProps));
 
-      return ops.createFileset(filesetIdent, comment, type, storageLocation, filesetProps);
+      return ops.createFileset(filesetIdent, comment, type, storageLocation, "", filesetProps);
     }
   }
 }

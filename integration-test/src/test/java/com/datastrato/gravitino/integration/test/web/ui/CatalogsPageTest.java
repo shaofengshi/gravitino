@@ -237,6 +237,7 @@ public class CatalogsPageTest extends AbstractWebIT {
             "comment",
             Fileset.Type.MANAGED,
             storageLocation,
+            "",
             properties);
   }
 

@@ -134,6 +134,7 @@ public class FilesetOperations {
                             request.getComment(),
                             Optional.ofNullable(request.getType()).orElse(Fileset.Type.MANAGED),
                             request.getStorageLocation(),
+                            request.getStorageLocation2(),
                             request.getProperties()));
             Response response = Utils.ok(new FilesetResponse(DTOConverters.toDTO(fileset)));
             LOG.info("Fileset created: {}.{}.{}.{}", metalake, catalog, schema, request.getName());

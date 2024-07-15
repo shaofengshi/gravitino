@@ -202,6 +202,7 @@ public class HadoopCatalogOperations implements CatalogOperations, SupportsSchem
       String comment,
       Fileset.Type type,
       String storageLocation,
+      String storageLocation2,
       Map<String, String> properties)
       throws NoSuchSchemaException, FilesetAlreadyExistsException {
     try {
@@ -278,6 +279,7 @@ public class HadoopCatalogOperations implements CatalogOperations, SupportsSchem
             // managed fileset, Gravitino will get and store the location based on the
             // catalog/schema's location and store it to the store.
             .withStorageLocation(filesetPath.toString())
+            .withStorageLocation2(storageLocation2)
             .withProperties(properties)
             .withAuditInfo(
                 AuditInfo.builder()

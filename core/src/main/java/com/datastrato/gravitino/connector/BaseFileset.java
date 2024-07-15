@@ -40,6 +40,8 @@ public abstract class BaseFileset implements Fileset {
 
   protected String storageLocation;
 
+  protected String storageLocation2;
+
   @Nullable protected Map<String, String> properties;
 
   protected AuditInfo auditInfo;
@@ -69,6 +71,12 @@ public abstract class BaseFileset implements Fileset {
     return storageLocation;
   }
 
+  /** @return The secondary storage location string of the fileset. */
+  @Override
+  public String storageLocation2() {
+    return storageLocation2;
+  }
+
   /** @return The audit information for the fileset. */
   @Override
   public AuditInfo auditInfo() {
@@ -92,6 +100,8 @@ public abstract class BaseFileset implements Fileset {
 
     SELF withStorageLocation(String storageLocation);
 
+    SELF withStorageLocation2(String storageLocation2);
+
     SELF withProperties(Map<String, String> properties);
 
     SELF withAuditInfo(AuditInfo auditInfo);
@@ -113,6 +123,7 @@ public abstract class BaseFileset implements Fileset {
     protected String comment;
     protected Type type;
     protected String storageLocation;
+    protected String storageLocation2;
     protected Map<String, String> properties;
     protected AuditInfo auditInfo;
 
@@ -161,6 +172,18 @@ public abstract class BaseFileset implements Fileset {
     @Override
     public SELF withStorageLocation(String storageLocation) {
       this.storageLocation = storageLocation;
+      return self();
+    }
+
+    /**
+     * Sets the secondary storage location of the fileset.
+     *
+     * @param storageLocation2 The secondary storage location of the fileset.
+     * @return The builder instance.
+     */
+    @Override
+    public SELF withStorageLocation2(String storageLocation2) {
+      this.storageLocation2 = storageLocation2;
       return self();
     }
 

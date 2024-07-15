@@ -52,7 +52,7 @@ public class TestFilesetOperationDispatcher extends TestOperationDispatcher {
     NameIdentifier filesetIdent1 = NameIdentifier.of(filesetNs, "fileset1");
     Fileset fileset1 =
         filesetOperationDispatcher.createFileset(
-            filesetIdent1, "comment", Fileset.Type.MANAGED, "test", props);
+            filesetIdent1, "comment", Fileset.Type.MANAGED, "test", "", props);
     Assertions.assertEquals("fileset1", fileset1.name());
     Assertions.assertEquals("comment", fileset1.comment());
     testProperties(props, fileset1.properties());
@@ -67,14 +67,14 @@ public class TestFilesetOperationDispatcher extends TestOperationDispatcher {
     testPropertyException(
         () ->
             filesetOperationDispatcher.createFileset(
-                filesetIdent1, "comment", Fileset.Type.MANAGED, "test", illegalProps),
+                filesetIdent1, "comment", Fileset.Type.MANAGED, "test", "", illegalProps),
         "Properties are required and must be set");
 
     Map<String, String> illegalProps2 = ImmutableMap.of("k1", "v1", ID_KEY, "test");
     testPropertyException(
         () ->
             filesetOperationDispatcher.createFileset(
-                filesetIdent1, "comment", Fileset.Type.MANAGED, "test", illegalProps2),
+                filesetIdent1, "comment", Fileset.Type.MANAGED, "test", "", illegalProps2),
         "Properties are reserved and cannot be set",
         "gravitino.identifier");
   }
@@ -88,7 +88,7 @@ public class TestFilesetOperationDispatcher extends TestOperationDispatcher {
     NameIdentifier filesetIdent1 = NameIdentifier.of(filesetNs, "fileset11");
     Fileset fileset1 =
         filesetOperationDispatcher.createFileset(
-            filesetIdent1, "comment", Fileset.Type.MANAGED, null, props);
+            filesetIdent1, "comment", Fileset.Type.MANAGED, null, "", props);
     Assertions.assertEquals("fileset11", fileset1.name());
     Assertions.assertEquals("comment", fileset1.comment());
     testProperties(props, fileset1.properties());
@@ -112,7 +112,7 @@ public class TestFilesetOperationDispatcher extends TestOperationDispatcher {
     NameIdentifier filesetIdent1 = NameIdentifier.of(filesetNs, "fileset21");
     Fileset fileset1 =
         filesetOperationDispatcher.createFileset(
-            filesetIdent1, "comment", Fileset.Type.MANAGED, "fileset21", props);
+            filesetIdent1, "comment", Fileset.Type.MANAGED, "fileset21", "", props);
     Assertions.assertEquals("fileset21", fileset1.name());
     Assertions.assertEquals("comment", fileset1.comment());
     testProperties(props, fileset1.properties());
@@ -158,7 +158,7 @@ public class TestFilesetOperationDispatcher extends TestOperationDispatcher {
     NameIdentifier filesetIdent1 = NameIdentifier.of(filesetNs, "fileset31");
     Fileset fileset1 =
         filesetOperationDispatcher.createFileset(
-            filesetIdent1, "comment", Fileset.Type.MANAGED, "fileset31", props);
+            filesetIdent1, "comment", Fileset.Type.MANAGED, "fileset31", "", props);
     Assertions.assertEquals("fileset31", fileset1.name());
     Assertions.assertEquals("comment", fileset1.comment());
     testProperties(props, fileset1.properties());

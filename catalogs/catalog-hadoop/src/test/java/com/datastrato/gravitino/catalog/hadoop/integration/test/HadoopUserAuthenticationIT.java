@@ -215,6 +215,7 @@ public class HadoopUserAuthenticationIT extends AbstractIT {
             "comment",
             Fileset.Type.MANAGED,
             null,
+            "",
             ImmutableMap.of());
 
     catalog.asFilesetCatalog().dropFileset(NameIdentifier.of(SCHEMA_NAME, TABLE_NAME));

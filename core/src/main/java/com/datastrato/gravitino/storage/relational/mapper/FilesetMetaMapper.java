@@ -47,7 +47,7 @@ public interface FilesetMetaMapper {
           + " fm.type, fm.audit_info, fm.current_version, fm.last_version, fm.deleted_at,"
           + " vi.id, vi.metalake_id as version_metalake_id, vi.catalog_id as version_catalog_id,"
           + " vi.schema_id as version_schema_id, vi.fileset_id as version_fileset_id,"
-          + " vi.version, vi.fileset_comment, vi.properties, vi.storage_location,"
+          + " vi.version, vi.fileset_comment, vi.properties, vi.storage_location, vi.storage_location2,"
           + " vi.deleted_at as version_deleted_at"
           + " FROM "
           + META_TABLE_NAME
@@ -75,6 +75,7 @@ public interface FilesetMetaMapper {
     @Result(property = "filesetVersionPO.filesetComment", column = "fileset_comment"),
     @Result(property = "filesetVersionPO.properties", column = "properties"),
     @Result(property = "filesetVersionPO.storageLocation", column = "storage_location"),
+    @Result(property = "filesetVersionPO.storageLocation2", column = "storage_location2"),
     @Result(property = "filesetVersionPO.deletedAt", column = "version_deleted_at")
   })
   List<FilesetPO> listFilesetPOsBySchemaId(@Param("schemaId") Long schemaId);
@@ -92,7 +93,7 @@ public interface FilesetMetaMapper {
           + " fm.type, fm.audit_info, fm.current_version, fm.last_version, fm.deleted_at,"
           + " vi.id, vi.metalake_id as version_metalake_id, vi.catalog_id as version_catalog_id,"
           + " vi.schema_id as version_schema_id, vi.fileset_id as version_fileset_id,"
-          + " vi.version, vi.fileset_comment, vi.properties, vi.storage_location,"
+          + " vi.version, vi.fileset_comment, vi.properties, vi.storage_location, vi.storage_location2,"
           + " vi.deleted_at as version_deleted_at"
           + " FROM "
           + META_TABLE_NAME
@@ -121,6 +122,7 @@ public interface FilesetMetaMapper {
     @Result(property = "filesetVersionPO.filesetComment", column = "fileset_comment"),
     @Result(property = "filesetVersionPO.properties", column = "properties"),
     @Result(property = "filesetVersionPO.storageLocation", column = "storage_location"),
+    @Result(property = "filesetVersionPO.storageLocation2", column = "storage_location2"),
     @Result(property = "filesetVersionPO.deletedAt", column = "version_deleted_at")
   })
   FilesetPO selectFilesetMetaBySchemaIdAndName(
@@ -131,7 +133,7 @@ public interface FilesetMetaMapper {
           + " fm.type, fm.audit_info, fm.current_version, fm.last_version, fm.deleted_at,"
           + " vi.id, vi.metalake_id as version_metalake_id, vi.catalog_id as version_catalog_id,"
           + " vi.schema_id as version_schema_id, vi.fileset_id as version_fileset_id,"
-          + " vi.version, vi.fileset_comment, vi.properties, vi.storage_location,"
+          + " vi.version, vi.fileset_comment, vi.properties, vi.storage_location, vi.storage_location2,"
           + " vi.deleted_at as version_deleted_at"
           + " FROM "
           + META_TABLE_NAME
@@ -160,6 +162,7 @@ public interface FilesetMetaMapper {
     @Result(property = "filesetVersionPO.filesetComment", column = "fileset_comment"),
     @Result(property = "filesetVersionPO.properties", column = "properties"),
     @Result(property = "filesetVersionPO.storageLocation", column = "storage_location"),
+    @Result(property = "filesetVersionPO.storageLocation2", column = "storage_location2"),
     @Result(property = "filesetVersionPO.deletedAt", column = "version_deleted_at")
   })
   FilesetPO selectFilesetMetaById(@Param("filesetId") Long filesetId);

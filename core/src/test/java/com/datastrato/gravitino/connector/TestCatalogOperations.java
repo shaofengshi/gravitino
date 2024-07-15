@@ -333,6 +333,7 @@ public class TestCatalogOperations
       String comment,
       Fileset.Type type,
       String storageLocation,
+      String storageLocation2,
       Map<String, String> properties)
       throws NoSuchSchemaException, FilesetAlreadyExistsException {
     AuditInfo auditInfo =
@@ -345,6 +346,7 @@ public class TestCatalogOperations
             .withAuditInfo(auditInfo)
             .withType(type)
             .withStorageLocation(storageLocation)
+            .withStorageLocation2(storageLocation2)
             .build();
 
     NameIdentifier schemaIdent = NameIdentifier.of(ident.namespace().levels());

@@ -235,7 +235,7 @@ public class TestFilesetOperations extends JerseyTest {
             "mock comment",
             "mock location",
             ImmutableMap.of("k1", "v1"));
-    when(dispatcher.createFileset(any(), any(), any(), any(), any())).thenReturn(fileset);
+    when(dispatcher.createFileset(any(), any(), any(), any(), any(), any())).thenReturn(fileset);
 
     FilesetCreateRequest req =
         FilesetCreateRequest.builder()
@@ -266,7 +266,7 @@ public class TestFilesetOperations extends JerseyTest {
     // Test throw NoSuchSchemaException
     doThrow(new NoSuchSchemaException("mock error"))
         .when(dispatcher)
-        .createFileset(any(), any(), any(), any(), any());
+        .createFileset(any(), any(), any(), any(), any(), any());
 
     Response resp1 =
         target(filesetPath(metalake, catalog, schema))
@@ -283,7 +283,7 @@ public class TestFilesetOperations extends JerseyTest {
     // Test throw FilesetAlreadyExistsException
     doThrow(new FilesetAlreadyExistsException("mock error"))
         .when(dispatcher)
-        .createFileset(any(), any(), any(), any(), any());
+        .createFileset(any(), any(), any(), any(), any(), any());
 
     Response resp2 =
         target(filesetPath(metalake, catalog, schema))
@@ -301,7 +301,7 @@ public class TestFilesetOperations extends JerseyTest {
     // Test throw RuntimeException
     doThrow(new RuntimeException("mock error"))
         .when(dispatcher)
-        .createFileset(any(), any(), any(), any(), any());
+        .createFileset(any(), any(), any(), any(), any(), any());
 
     Response resp3 =
         target(filesetPath(metalake, catalog, schema))

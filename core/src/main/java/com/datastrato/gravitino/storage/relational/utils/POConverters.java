@@ -448,6 +448,7 @@ public class POConverters {
               .withVersion(INIT_VERSION)
               .withFilesetComment(filesetEntity.comment())
               .withStorageLocation(filesetEntity.storageLocation())
+              .withStorageLocation2(filesetEntity.storageLocation2())
               .withProperties(
                   JsonUtils.anyFieldMapper().writeValueAsString(filesetEntity.properties()))
               .withDeletedAt(DEFAULT_DELETED_AT)
@@ -555,6 +556,7 @@ public class POConverters {
           .withComment(filesetPO.getFilesetVersionPO().getFilesetComment())
           .withFilesetType(Fileset.Type.valueOf(filesetPO.getType()))
           .withStorageLocation(filesetPO.getFilesetVersionPO().getStorageLocation())
+          .withStorageLocation2(filesetPO.getFilesetVersionPO().getStorageLocation2())
           .withProperties(
               JsonUtils.anyFieldMapper()
                   .readValue(filesetPO.getFilesetVersionPO().getProperties(), Map.class))

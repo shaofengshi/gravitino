@@ -106,6 +106,7 @@ CREATE TABLE IF NOT EXISTS `fileset_version_info` (
     `fileset_comment` VARCHAR(256) DEFAULT '' COMMENT 'fileset comment',
     `properties` MEDIUMTEXT DEFAULT NULL COMMENT 'fileset properties',
     `storage_location` MEDIUMTEXT NOT NULL COMMENT 'fileset storage location',
+    `storage_location2` MEDIUMTEXT COMMENT 'fileset secondary storage location',
     `deleted_at` BIGINT(20) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'fileset deleted at',
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_fid_ver_del` (`fileset_id`, `version`, `deleted_at`),
