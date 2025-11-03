@@ -33,11 +33,11 @@ class TableCreateRequest(DataClassJsonMixin):
     """Represents a request to create a table."""
 
     _name: str = field(metadata=config(field_name="name"))
+    _columns: List[ColumnDTO] = field(metadata=config(field_name="columns"))
     _comment: Optional[str] = field(
         default=None,
         metadata=config(field_name="comment", exclude=lambda value: value is None),
     )
-    _columns: List[ColumnDTO] = field(metadata=config(field_name="columns"))
     _properties: Optional[Dict[str, str]] = field(
         default=None,
         metadata=config(field_name="properties", exclude=lambda value: value is None),
