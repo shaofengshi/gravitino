@@ -89,6 +89,10 @@ class NoSuchModelVersionURINameException(NotFoundException):
     """An exception thrown when a URI name of a model version is not found."""
 
 
+class NoSuchTableException(NotFoundException):
+    """An exception thrown when a table is not found."""
+
+
 class AlreadyExistsException(GravitinoRuntimeException):
     """Base exception thrown when an entity or resource already exists."""
 
@@ -111,6 +115,10 @@ class ModelAlreadyExistsException(AlreadyExistsException):
 
 class ModelVersionAliasesAlreadyExistException(AlreadyExistsException):
     """An exception thrown when model version with aliases already exists."""
+
+
+class TableAlreadyExistsException(AlreadyExistsException):
+    """An exception thrown when a table already exists."""
 
 
 class NotEmptyException(GravitinoRuntimeException):

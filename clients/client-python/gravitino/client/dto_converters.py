@@ -101,6 +101,19 @@ class DTOConverters:
                 rest_client=client,
             )
 
+        if catalog.type() == Catalog.Type.RELATIONAL:
+            from gravitino.client.relational_catalog import RelationalCatalog
+            return RelationalCatalog(
+                namespace=namespace,
+                name=catalog.name(),
+                catalog_type=catalog.type(),
+                provider=catalog.provider(),
+                comment=catalog.comment(),
+                properties=catalog.properties(),
+                audit=catalog.audit_info(),
+                rest_client=client,
+            )
+
         raise NotImplementedError("Unsupported catalog type: " + str(catalog.type()))
 
     @staticmethod
