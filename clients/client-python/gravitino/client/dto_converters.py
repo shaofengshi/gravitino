@@ -31,6 +31,7 @@ from gravitino.api.job.shell_job_template import ShellJobTemplate
 from gravitino.api.job.spark_job_template import SparkJobTemplate
 from gravitino.client.fileset_catalog import FilesetCatalog
 from gravitino.client.generic_model_catalog import GenericModelCatalog
+from gravitino.client.relational_catalog import RelationalCatalog
 from gravitino.dto.catalog_dto import CatalogDTO
 from gravitino.dto.job.job_template_dto import JobTemplateDTO
 from gravitino.dto.job.shell_job_template_dto import ShellJobTemplateDTO
@@ -102,8 +103,8 @@ class DTOConverters:
             )
 
         if catalog.type() == Catalog.Type.RELATIONAL:
-            from gravitino.client.relational_catalog import RelationalCatalog
-            return RelationalCatalog(
+            # Import moved to top level to avoid pylint warning
+            return DTOConverters._create_relational_catalog(
                 namespace=namespace,
                 name=catalog.name(),
                 catalog_type=catalog.type(),
@@ -115,6 +116,22 @@ class DTOConverters:
             )
 
         raise NotImplementedError("Unsupported catalog type: " + str(catalog.type()))
+
+    @staticmethod
+    def _create_relational_catalog(
+        namespace, name, catalog_type, provider, comment, properties, audit, rest_client
+    ):
+        """Create a RelationalCatalog instance."""
+        return RelationalCatalog(
+            namespace=namespace,
+            name=name,
+            catalog_type=catalog_type,
+            provider=provider,
+            comment=comment,
+            properties=properties,
+            audit=audit,
+            rest_client=rest_client,
+        )
 
     @staticmethod
     def to_catalog_update_request(change: CatalogChange):

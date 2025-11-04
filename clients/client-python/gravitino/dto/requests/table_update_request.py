@@ -16,14 +16,12 @@
 # under the License.
 
 from abc import ABC
-from dataclasses import dataclass, field
 from typing import Optional
 
-from dataclasses_json import DataClassJsonMixin, config
+from dataclasses_json import DataClassJsonMixin
 
 from gravitino.api.rel.types.type import Type
 from gravitino.api.rel.table_change import TableChange
-from gravitino.dto.rel.column_dto import ColumnDTO
 from gravitino.dto.rel.expressions.func_expression_dto import FuncExpressionDTO
 
 
@@ -60,7 +58,9 @@ class TableUpdateRequest(ABC):
             self._property = property_name
             self._type = "removeProperty"
 
-    class AddTableColumnRequest(DataClassJsonMixin):
+    class AddTableColumnRequest(
+        DataClassJsonMixin
+    ):  # pylint: disable=too-many-instance-attributes
         """Request to add table column."""
 
         def __init__(
@@ -117,7 +117,9 @@ class TableUpdateRequest(ABC):
     class UpdateTableColumnPositionRequest(DataClassJsonMixin):
         """Request to update table column position."""
 
-        def __init__(self, field_name: list[str], new_position: TableChange.ColumnPosition):
+        def __init__(
+            self, field_name: list[str], new_position: TableChange.ColumnPosition
+        ):
             self._field_name = field_name
             self._new_position = new_position
             self._type = "updateColumnPosition"

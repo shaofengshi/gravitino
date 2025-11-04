@@ -27,9 +27,6 @@ from gravitino.exceptions.handlers.error_handler import ErrorHandler
 class TableErrorHandler(ErrorHandler):
     """Error handler for table operations."""
 
-    def __init__(self):
-        super().__init__()
-
     def handle(self, error_response):
         """Handle table-related errors."""
         error_type = error_response.type()
@@ -37,14 +34,14 @@ class TableErrorHandler(ErrorHandler):
 
         if error_type == "NoSuchSchemaException":
             raise NoSuchSchemaException(error_message)
-        elif error_type == "NoSuchTableException":
+        if error_type == "NoSuchTableException":
             raise NoSuchTableException(error_message)
-        elif error_type == "TableAlreadyExistsException":
+        if error_type == "TableAlreadyExistsException":
             raise TableAlreadyExistsException(error_message)
-        elif error_type == "IllegalArgumentException":
+        if error_type == "IllegalArgumentException":
             raise IllegalArgumentException(error_message)
-        else:
-            super().handle(error_response)
+
+        super().handle(error_response)
 
 
 # Global instance

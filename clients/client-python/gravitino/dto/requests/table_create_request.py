@@ -29,7 +29,9 @@ from gravitino.utils.precondition import Precondition
 
 
 @dataclass
-class TableCreateRequest(DataClassJsonMixin):
+class TableCreateRequest(
+    DataClassJsonMixin
+):  # pylint: disable=too-many-instance-attributes
     """Represents a request to create a table."""
 
     _name: str = field(metadata=config(field_name="name"))

@@ -18,7 +18,7 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from dataclasses_json import DataClassJsonMixin, config
+from dataclasses_json import config
 
 from gravitino.dto.rel.table_dto import TableDTO
 from gravitino.dto.responses.base_response import BaseResponse
@@ -39,5 +39,5 @@ class TableResponse(BaseResponse):
     def validate(self):
         """Validates the response."""
         super().validate()
-        if self._table is not None:
-            self._table.validate() if hasattr(self._table, 'validate') else None
+        if self._table is not None and hasattr(self._table, "validate"):
+            self._table.validate()

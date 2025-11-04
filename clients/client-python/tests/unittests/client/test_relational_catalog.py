@@ -37,7 +37,7 @@ class TestRelationalCatalog(unittest.TestCase):
             _creator="test_user",
             _create_time="2023-01-01T00:00:00Z",
             _last_modifier="test_user",
-            _last_modified_time="2023-01-01T00:00:00Z"
+            _last_modified_time="2023-01-01T00:00:00Z",
         )
 
     def test_relational_catalog_creation(self):
@@ -68,10 +68,12 @@ class TestRelationalCatalog(unittest.TestCase):
             _provider="test_provider",
             _comment="Test relational catalog",
             _properties={"key": "value"},
-            _audit=self.audit
+            _audit=self.audit,
         )
 
-        catalog = DTOConverters.to_catalog("test_metalake", catalog_dto, self.mock_client)
+        catalog = DTOConverters.to_catalog(
+            "test_metalake", catalog_dto, self.mock_client
+        )
 
         self.assertIsNotNone(catalog)
         self.assertIsInstance(catalog, RelationalCatalog)

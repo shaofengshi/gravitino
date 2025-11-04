@@ -17,7 +17,7 @@
 
 import logging
 from random import randint
-from typing import Dict, List, Optional
+from typing import Dict
 
 from gravitino import (
     NameIdentifier,
@@ -36,7 +36,6 @@ from gravitino.client.relational_catalog import RelationalCatalog
 from gravitino.exceptions.base import (
     NoSuchTableException,
     TableAlreadyExistsException,
-    GravitinoRuntimeException,
 )
 from tests.integration.integration_test_env import IntegrationTestEnv
 
@@ -46,7 +45,7 @@ logger = logging.getLogger(__name__)
 class TestRelationalCatalog(IntegrationTestEnv):
     metalake_name: str = "TestRelationalCatalog_metalake" + str(randint(1, 10000))
     catalog_name: str = "relational_catalog"
-    catalog_provider: str = "memory"  # Use memory provider for testing
+    catalog_provider: str = "hadoop"  # Use hadoop provider for testing
 
     schema_name: str = "test_schema"
 
@@ -73,112 +72,71 @@ class TestRelationalCatalog(IntegrationTestEnv):
         uri="http://localhost:8090"
     )
     gravitino_client: GravitinoClient = None
+    catalog: Catalog = None
 
-    def setUp(self):
-        self.init_test_env()
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
 
-    def tearDown(self):
-        self.clean_test_data()
-
-    def clean_test_data(self):
-        self.gravitino_client = GravitinoClient(
-            uri="http://localhost:8090", metalake_name=self.metalake_name
+        cls.gravitino_admin_client = GravitinoAdminClient(uri="http://localhost:8090")
+        cls.gravitino_admin_client.create_metalake(
+            cls.metalake_name,
+            comment="Test metalake for relational catalog",
+            properties={},
         )
-        try:
-            catalog = self.gravitino_client.load_catalog(name=self.catalog_name)
-            relational_catalog = catalog.as_table_catalog()
-            
-            # Drop tables
-            try:
-                logger.info(
-                    "Drop table %s[%s]",
-                    self.table_ident,
-                    relational_catalog.drop_table(ident=self.table_ident),
-                )
-            except GravitinoRuntimeException:
-                logger.warning("Failed to drop table %s", self.table_ident)
 
-            try:
-                logger.info(
-                    "Drop table %s[%s]",
-                    self.table_alter_ident,
-                    relational_catalog.drop_table(ident=self.table_alter_ident),
-                )
-            except GravitinoRuntimeException:
-                logger.warning("Failed to drop table %s", self.table_alter_ident)
-
-            # Drop schema
-            try:
-                logger.info(
-                    "Drop schema %s[%s]",
-                    self.schema_ident,
-                    catalog.as_schemas().drop_schema(
-                        schema_name=self.schema_name, cascade=True
-                    ),
-                )
-            except GravitinoRuntimeException:
-                logger.warning("Failed to drop schema %s", self.schema_name)
-
-        except GravitinoRuntimeException:
-            logger.warning("Failed to load catalog %s", self.catalog_name)
-
-        # Drop catalog
-        try:
-            logger.info(
-                "Drop catalog %s[%s]",
-                self.catalog_ident,
-                self.gravitino_client.drop_catalog(name=self.catalog_name, force=True),
-            )
-        except GravitinoRuntimeException:
-            logger.warning("Failed to drop catalog %s", self.catalog_name)
-
-        # Drop metalake
-        try:
-            logger.info(
-                "Drop metalake %s[%s]",
-                self.metalake_name,
-                self.gravitino_admin_client.drop_metalake(
-                    self.metalake_name, force=True
-                ),
-            )
-        except GravitinoRuntimeException:
-            logger.warning("Failed to drop metalake %s", self.metalake_name)
-
-    def init_test_env(self):
-        self.gravitino_admin_client.create_metalake(
-            self.metalake_name, comment="", properties={}
+        cls.gravitino_client = GravitinoClient(
+            uri="http://localhost:8090", metalake_name=cls.metalake_name
         )
-        self.gravitino_client = GravitinoClient(
-            uri="http://localhost:8090", metalake_name=self.metalake_name
-        )
-        catalog = self.gravitino_client.create_catalog(
-            name=self.catalog_name,
+        cls.catalog = cls.gravitino_client.create_catalog(
+            name=cls.catalog_name,
             catalog_type=Catalog.Type.RELATIONAL,
-            provider=self.catalog_provider,
+            provider=cls.catalog_provider,
             comment="Test relational catalog",
             properties={},
         )
-        catalog.as_schemas().create_schema(
-            schema_name=self.schema_name, comment="", properties={}
+
+    @classmethod
+    def tearDownClass(cls):
+        try:
+            cls.gravitino_client.drop_catalog(name=cls.catalog_name, force=True)
+            cls.gravitino_admin_client.drop_metalake(name=cls.metalake_name, force=True)
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            logger.warning("Failed to clean up class-level resources: %s", e)
+
+        super().tearDownClass()
+
+    def setUp(self):
+        # Create schema for each test
+        self.catalog.as_schemas().create_schema(
+            schema_name=self.schema_name, comment="Test schema", properties={}
         )
+
+    def tearDown(self):
+        # Clean up schema and tables after each test
+        try:
+            self.catalog.as_schemas().drop_schema(
+                schema_name=self.schema_name, cascade=True
+            )
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            logger.warning("Failed to clean up test resources: %s", e)
 
     def create_test_table(self, table_name: str = None) -> Table:
         """Create a test table with basic columns."""
         if table_name is None:
             table_name = self.table_name
-            
-        catalog = self.gravitino_client.load_catalog(name=self.catalog_name)
-        relational_catalog = catalog.as_table_catalog()
-        
+
+        relational_catalog = self.catalog.as_table_catalog()
+
         # Create basic columns for testing
         columns = [
             Column.of("id", Types.LongType.get(), "Primary key"),
             Column.of("name", Types.StringType.get(), "Name column"),
             Column.of("age", Types.IntegerType.get(), "Age column", nullable=True),
         ]
-        
+
         table_ident = NameIdentifier.of(self.schema_name, table_name)
-        
+
         return relational_catalog.create_table(
             ident=table_ident,
             columns=columns,
@@ -192,12 +150,11 @@ class TestRelationalCatalog(IntegrationTestEnv):
 
     def test_catalog_type_conversion(self):
         """Test that RELATIONAL catalog is properly converted to RelationalCatalog."""
-        catalog = self.gravitino_client.load_catalog(name=self.catalog_name)
-        self.assertIsNotNone(catalog)
-        self.assertEqual(catalog.type(), Catalog.Type.RELATIONAL)
-        
+        self.assertIsNotNone(self.catalog)
+        self.assertEqual(self.catalog.type(), Catalog.Type.RELATIONAL)
+
         # Test as_table_catalog conversion
-        table_catalog = catalog.as_table_catalog()
+        table_catalog = self.catalog.as_table_catalog()
         self.assertIsNotNone(table_catalog)
         self.assertIsInstance(table_catalog, RelationalCatalog)
 
@@ -209,7 +166,7 @@ class TestRelationalCatalog(IntegrationTestEnv):
         self.assertEqual(table.comment(), self.table_comment)
         self.assertEqual(table.properties(), self.table_properties)
         self.assertEqual(len(table.columns()), 3)
-        
+
         # Verify column details
         columns = table.columns()
         self.assertEqual(columns[0].name(), "id")
@@ -223,13 +180,12 @@ class TestRelationalCatalog(IntegrationTestEnv):
     def test_create_table_already_exists(self):
         """Test creating a table that already exists should raise exception."""
         self.create_test_table()
-        
-        catalog = self.gravitino_client.load_catalog(name=self.catalog_name)
-        relational_catalog = catalog.as_table_catalog()
-        
+
+        relational_catalog = self.catalog.as_table_catalog()
+
         columns = [Column.of("id", Types.LongType.get(), "Primary key")]
         table_ident = NameIdentifier.of(self.schema_name, self.table_name)
-        
+
         with self.assertRaises(TableAlreadyExistsException):
             relational_catalog.create_table(
                 ident=table_ident,
@@ -241,25 +197,23 @@ class TestRelationalCatalog(IntegrationTestEnv):
     def test_list_tables(self):
         """Test listing tables in a schema."""
         self.create_test_table()
-        
-        catalog = self.gravitino_client.load_catalog(name=self.catalog_name)
-        relational_catalog = catalog.as_table_catalog()
-        
+
+        relational_catalog = self.catalog.as_table_catalog()
+
         table_list = relational_catalog.list_tables(
             namespace=self.table_ident.namespace()
         )
-        
+
         self.assertTrue(any(item.name() == self.table_name for item in table_list))
 
     def test_load_table(self):
         """Test loading a table by identifier."""
         self.create_test_table()
-        
-        catalog = self.gravitino_client.load_catalog(name=self.catalog_name)
-        relational_catalog = catalog.as_table_catalog()
-        
+
+        relational_catalog = self.catalog.as_table_catalog()
+
         table = relational_catalog.load_table(ident=self.table_ident)
-        
+
         self.assertIsNotNone(table)
         self.assertEqual(table.name(), self.table_name)
         self.assertEqual(table.comment(), self.table_comment)
@@ -268,46 +222,43 @@ class TestRelationalCatalog(IntegrationTestEnv):
 
     def test_load_table_not_exists(self):
         """Test loading a table that doesn't exist should raise exception."""
-        catalog = self.gravitino_client.load_catalog(name=self.catalog_name)
-        relational_catalog = catalog.as_table_catalog()
-        
+        relational_catalog = self.catalog.as_table_catalog()
+
         non_existent_table = NameIdentifier.of(self.schema_name, "non_existent_table")
-        
+
         with self.assertRaises(NoSuchTableException):
             relational_catalog.load_table(ident=non_existent_table)
 
     def test_table_exists(self):
         """Test checking if a table exists."""
-        catalog = self.gravitino_client.load_catalog(name=self.catalog_name)
-        relational_catalog = catalog.as_table_catalog()
-        
+        relational_catalog = self.catalog.as_table_catalog()
+
         # Table should not exist initially
         self.assertFalse(relational_catalog.table_exists(ident=self.table_ident))
-        
+
         # Create table
         self.create_test_table()
-        
+
         # Table should exist now
         self.assertTrue(relational_catalog.table_exists(ident=self.table_ident))
 
     def test_alter_table(self):
         """Test altering a table."""
         self.create_test_table()
-        
-        catalog = self.gravitino_client.load_catalog(name=self.catalog_name)
-        relational_catalog = catalog.as_table_catalog()
-        
+
+        relational_catalog = self.catalog.as_table_catalog()
+
         new_comment = self.table_comment + "_new"
         new_property_value = self.table_properties_value2 + "_new"
-        
+
         changes = [
             TableChange.update_comment(new_comment),
             TableChange.set_property(self.table_properties_key2, new_property_value),
             TableChange.remove_property(self.table_properties_key1),
         ]
-        
+
         altered_table = relational_catalog.alter_table(self.table_ident, *changes)
-        
+
         self.assertEqual(altered_table.comment(), new_comment)
         self.assertEqual(
             altered_table.properties().get(self.table_properties_key2),
@@ -318,27 +269,25 @@ class TestRelationalCatalog(IntegrationTestEnv):
     def test_drop_table(self):
         """Test dropping a table."""
         self.create_test_table()
-        
-        catalog = self.gravitino_client.load_catalog(name=self.catalog_name)
-        relational_catalog = catalog.as_table_catalog()
-        
+
+        relational_catalog = self.catalog.as_table_catalog()
+
         # Table should exist
         self.assertTrue(relational_catalog.table_exists(ident=self.table_ident))
-        
+
         # Drop table
         result = relational_catalog.drop_table(ident=self.table_ident)
         self.assertTrue(result)
-        
+
         # Table should not exist anymore
         self.assertFalse(relational_catalog.table_exists(ident=self.table_ident))
 
     def test_drop_table_not_exists(self):
         """Test dropping a table that doesn't exist."""
-        catalog = self.gravitino_client.load_catalog(name=self.catalog_name)
-        relational_catalog = catalog.as_table_catalog()
-        
+        relational_catalog = self.catalog.as_table_catalog()
+
         non_existent_table = NameIdentifier.of(self.schema_name, "non_existent_table")
-        
+
         # Should return False for non-existent table
         result = relational_catalog.drop_table(ident=non_existent_table)
         self.assertFalse(result)
@@ -346,21 +295,20 @@ class TestRelationalCatalog(IntegrationTestEnv):
     def test_purge_table(self):
         """Test purging a table (if supported by the catalog)."""
         self.create_test_table()
-        
-        catalog = self.gravitino_client.load_catalog(name=self.catalog_name)
-        relational_catalog = catalog.as_table_catalog()
-        
+
+        relational_catalog = self.catalog.as_table_catalog()
+
         # Table should exist
         self.assertTrue(relational_catalog.table_exists(ident=self.table_ident))
-        
+
         try:
             # Purge table
             result = relational_catalog.purge_table(ident=self.table_ident)
             self.assertTrue(result)
-            
+
             # Table should not exist anymore
             self.assertFalse(relational_catalog.table_exists(ident=self.table_ident))
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             # Some catalogs may not support purge operation
-            logger.info(f"Purge operation not supported: {e}")
+            logger.info("Purge operation not supported: %s", e)
             self.skipTest("Purge operation not supported by this catalog")

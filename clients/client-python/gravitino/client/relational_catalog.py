@@ -20,12 +20,11 @@ from typing import Dict, List, Optional
 from gravitino.api.catalog import Catalog
 from gravitino.api.rel.column import Column
 from gravitino.api.rel.expressions.distributions.distribution import Distribution
-from gravitino.api.rel.expressions.distributions.distributions import Distributions
+
 from gravitino.api.rel.expressions.sorts.sort_order import SortOrder
 from gravitino.api.rel.expressions.transforms.transform import Transform
-from gravitino.api.rel.expressions.transforms.transforms import Transforms
+
 from gravitino.api.rel.indexes.index import Index
-from gravitino.api.rel.indexes.indexes import Indexes
 from gravitino.api.rel.table import Table
 from gravitino.api.rel.table_change import TableChange
 from gravitino.client.base_schema_catalog import BaseSchemaCatalog
@@ -37,12 +36,9 @@ from gravitino.dto.requests.table_updates_request import TableUpdatesRequest
 from gravitino.dto.responses.drop_response import DropResponse
 from gravitino.dto.responses.entity_list_response import EntityListResponse
 from gravitino.dto.responses.table_response import TableResponse
-from gravitino.exceptions.base import (
-    IllegalArgumentException,
-    NoSuchSchemaException,
-    NoSuchTableException,
-    TableAlreadyExistsException,
-)
+from gravitino.dto.rel.column_dto import ColumnDTO
+
+from gravitino.exceptions.base import NoSuchTableException
 from gravitino.exceptions.handlers.table_error_handler import TABLE_ERROR_HANDLER
 from gravitino.name_identifier import NameIdentifier
 from gravitino.namespace import Namespace
@@ -103,7 +99,9 @@ class RelationalCatalog(BaseSchemaCatalog):
             self._format_table_request_path(full_namespace),
             error_handler=TABLE_ERROR_HANDLER,
         )
-        entity_list_response = EntityListResponse.from_json(resp.body, infer_missing=True)
+        entity_list_response = EntityListResponse.from_json(
+            resp.body, infer_missing=True
+        )
         entity_list_response.validate()
 
         return [
@@ -127,13 +125,17 @@ class RelationalCatalog(BaseSchemaCatalog):
 
         full_namespace = self._get_table_full_namespace(ident.namespace())
         resp = self.rest_client.get(
-            self._format_table_request_path(full_namespace) + "/" + encode_string(ident.name()),
+            self._format_table_request_path(full_namespace)
+            + "/"
+            + encode_string(ident.name()),
             error_handler=TABLE_ERROR_HANDLER,
         )
         table_response = TableResponse.from_json(resp.body, infer_missing=True)
         table_response.validate()
 
-        return RelationalTable.from_dto(full_namespace, table_response.table(), self.rest_client)
+        return RelationalTable.from_dto(
+            full_namespace, table_response.table(), self.rest_client
+        )
 
     def table_exists(self, ident: NameIdentifier) -> bool:
         """Check if a table exists using an NameIdentifier.
@@ -183,30 +185,54 @@ class RelationalCatalog(BaseSchemaCatalog):
         self._check_table_name_identifier(ident)
 
         # Convert to DTOs
-        from gravitino.dto.rel.column_dto import ColumnDTO
-        from gravitino.dto.rel.distribution_dto import DistributionDTO
-        from gravitino.dto.rel.indexes.index_dto import IndexDTO
-        from gravitino.dto.rel.partitioning.partitioning import Partitioning
-        from gravitino.dto.rel.sort_order_dto import SortOrderDTO
-
-        column_dtos = [self._to_column_dto(col) for col in columns] if columns else []
-        sort_order_dtos = [self._to_sort_order_dto(so) for so in sort_orders] if sort_orders else None
-        distribution_dto = self._to_distribution_dto(distribution) if distribution else None
-        partitioning_dtos = [self._to_partitioning_dto(p) for p in partitioning] if partitioning else None
-        index_dtos = [self._to_index_dto(idx) for idx in indexes] if indexes else None
+        dto_data = self._convert_to_dtos(
+            columns, sort_orders, distribution, partitioning, indexes
+        )
 
         req = TableCreateRequest(
             name=ident.name(),
             comment=comment,
-            columns=column_dtos,
+            columns=dto_data["columns"],
             properties=properties,
-            sort_orders=sort_order_dtos,
-            distribution=distribution_dto,
-            partitioning=partitioning_dtos,
-            indexes=index_dtos,
+            sort_orders=dto_data["sort_orders"],
+            distribution=dto_data["distribution"],
+            partitioning=dto_data["partitioning"],
+            indexes=dto_data["indexes"],
         )
         req.validate()
 
+        return self._create_table_from_request(ident, req)
+
+    def _convert_to_dtos(
+        self, columns, sort_orders, distribution, partitioning, indexes
+    ):
+        """Convert API objects to DTOs."""
+        column_dtos = [self._to_column_dto(col) for col in columns] if columns else []
+        sort_order_dtos = (
+            [self._to_sort_order_dto(so) for so in sort_orders] if sort_orders else None
+        )
+        distribution_dto = (
+            self._to_distribution_dto(distribution) if distribution else None
+        )
+        partitioning_dtos = (
+            [self._to_partitioning_dto(p) for p in partitioning]
+            if partitioning
+            else None
+        )
+        index_dtos = [self._to_index_dto(idx) for idx in indexes] if indexes else None
+
+        return {
+            "columns": column_dtos,
+            "sort_orders": sort_order_dtos,
+            "distribution": distribution_dto,
+            "partitioning": partitioning_dtos,
+            "indexes": index_dtos,
+        }
+
+    def _create_table_from_request(
+        self, ident: NameIdentifier, req: TableCreateRequest
+    ) -> Table:
+        """Create table from request."""
         full_namespace = self._get_table_full_namespace(ident.namespace())
         resp = self.rest_client.post(
             self._format_table_request_path(full_namespace),
@@ -216,7 +242,9 @@ class RelationalCatalog(BaseSchemaCatalog):
         table_response = TableResponse.from_json(resp.body, infer_missing=True)
         table_response.validate()
 
-        return RelationalTable.from_dto(full_namespace, table_response.table(), self.rest_client)
+        return RelationalTable.from_dto(
+            full_namespace, table_response.table(), self.rest_client
+        )
 
     def alter_table(self, ident: NameIdentifier, *changes: TableChange) -> Table:
         """Alter the table with specified identifier by applying the changes.
@@ -240,14 +268,18 @@ class RelationalCatalog(BaseSchemaCatalog):
 
         full_namespace = self._get_table_full_namespace(ident.namespace())
         resp = self.rest_client.put(
-            self._format_table_request_path(full_namespace) + "/" + encode_string(ident.name()),
+            self._format_table_request_path(full_namespace)
+            + "/"
+            + encode_string(ident.name()),
             updates_request,
             error_handler=TABLE_ERROR_HANDLER,
         )
         table_response = TableResponse.from_json(resp.body, infer_missing=True)
         table_response.validate()
 
-        return RelationalTable.from_dto(full_namespace, table_response.table(), self.rest_client)
+        return RelationalTable.from_dto(
+            full_namespace, table_response.table(), self.rest_client
+        )
 
     def drop_table(self, ident: NameIdentifier) -> bool:
         """Drop the table with specified identifier.
@@ -262,7 +294,9 @@ class RelationalCatalog(BaseSchemaCatalog):
 
         full_namespace = self._get_table_full_namespace(ident.namespace())
         resp = self.rest_client.delete(
-            self._format_table_request_path(full_namespace) + "/" + encode_string(ident.name()),
+            self._format_table_request_path(full_namespace)
+            + "/"
+            + encode_string(ident.name()),
             error_handler=TABLE_ERROR_HANDLER,
         )
         drop_response = DropResponse.from_json(resp.body, infer_missing=True)
@@ -286,7 +320,9 @@ class RelationalCatalog(BaseSchemaCatalog):
         full_namespace = self._get_table_full_namespace(ident.namespace())
         params = {"purge": "true"}
         resp = self.rest_client.delete(
-            self._format_table_request_path(full_namespace) + "/" + encode_string(ident.name()),
+            self._format_table_request_path(full_namespace)
+            + "/"
+            + encode_string(ident.name()),
             params=params,
             error_handler=TABLE_ERROR_HANDLER,
         )
@@ -328,65 +364,79 @@ class RelationalCatalog(BaseSchemaCatalog):
 
     def _to_table_update_request(self, change: TableChange) -> TableUpdateRequest:
         """Convert a TableChange to a TableUpdateRequest."""
+        # Table-level changes
+        table_changes = self._handle_table_level_changes(change)
+        if table_changes:
+            return table_changes
+
+        # Column-level changes
+        column_changes = self._handle_column_level_changes(change)
+        if column_changes:
+            return column_changes
+
+        raise ValueError(f"Unknown change type: {type(change).__name__}")
+
+    def _handle_table_level_changes(self, change: TableChange):
+        """Handle table-level changes."""
         if isinstance(change, TableChange.RenameTable):
             return TableUpdateRequest.RenameTableRequest(
                 change.new_name(), change.new_schema_name()
             )
-        elif isinstance(change, TableChange.UpdateComment):
+        if isinstance(change, TableChange.UpdateComment):
             return TableUpdateRequest.UpdateTableCommentRequest(change.new_comment())
-        elif isinstance(change, TableChange.SetProperty):
-            return TableUpdateRequest.SetTablePropertyRequest(change.property(), change.value())
-        elif isinstance(change, TableChange.RemoveProperty):
+        if isinstance(change, TableChange.SetProperty):
+            return TableUpdateRequest.SetTablePropertyRequest(
+                change.property(), change.value()
+            )
+        if isinstance(change, TableChange.RemoveProperty):
             return TableUpdateRequest.RemoveTablePropertyRequest(change.property())
-        elif isinstance(change, TableChange.AddColumn):
-            return TableUpdateRequest.AddTableColumnRequest(
-                change.field_name(),
-                change.data_type(),
-                change.comment(),
-                change.position(),
-                change.nullable(),
-                change.auto_increment(),
-                change.default_value(),
-            )
-        elif isinstance(change, TableChange.RenameColumn):
-            return TableUpdateRequest.RenameTableColumnRequest(
-                change.field_name(), change.new_name()
-            )
-        elif isinstance(change, TableChange.UpdateColumnDefaultValue):
-            return TableUpdateRequest.UpdateTableColumnDefaultValueRequest(
-                change.field_name(), change.new_default_value()
-            )
-        elif isinstance(change, TableChange.UpdateColumnType):
-            return TableUpdateRequest.UpdateTableColumnTypeRequest(
-                change.field_name(), change.new_data_type()
-            )
-        elif isinstance(change, TableChange.UpdateColumnComment):
-            return TableUpdateRequest.UpdateTableColumnCommentRequest(
-                change.field_name(), change.new_comment()
-            )
-        elif isinstance(change, TableChange.UpdateColumnPosition):
-            return TableUpdateRequest.UpdateTableColumnPositionRequest(
-                change.field_name(), change.position()
-            )
-        elif isinstance(change, TableChange.DeleteColumn):
-            return TableUpdateRequest.DeleteTableColumnRequest(
-                change.field_name(), change.if_exists()
-            )
-        elif isinstance(change, TableChange.UpdateColumnNullability):
-            return TableUpdateRequest.UpdateTableColumnNullabilityRequest(
-                change.field_name(), change.nullable()
-            )
-        elif isinstance(change, TableChange.UpdateColumnAutoIncrement):
-            return TableUpdateRequest.UpdateColumnAutoIncrementRequest(
-                change.field_name(), change.auto_increment()
-            )
-        else:
-            raise ValueError(f"Unknown change type: {type(change).__name__}")
+        return None
+
+    def _handle_column_level_changes(self, change: TableChange):
+        """Handle column-level changes."""
+        column_change_handlers = {
+            TableChange.AddColumn: lambda c: TableUpdateRequest.AddTableColumnRequest(
+                c.field_name(),
+                c.data_type(),
+                c.comment(),
+                c.position(),
+                c.nullable(),
+                c.auto_increment(),
+                c.default_value(),
+            ),
+            TableChange.RenameColumn: lambda c: TableUpdateRequest.RenameTableColumnRequest(
+                c.field_name(), c.new_name()
+            ),
+            TableChange.UpdateColumnDefaultValue: lambda c: TableUpdateRequest.UpdateTableColumnDefaultValueRequest(
+                c.field_name(), c.new_default_value()
+            ),
+            TableChange.UpdateColumnType: lambda c: TableUpdateRequest.UpdateTableColumnTypeRequest(
+                c.field_name(), c.new_data_type()
+            ),
+            TableChange.UpdateColumnComment: lambda c: TableUpdateRequest.UpdateTableColumnCommentRequest(
+                c.field_name(), c.new_comment()
+            ),
+            TableChange.UpdateColumnPosition: lambda c: TableUpdateRequest.UpdateTableColumnPositionRequest(
+                c.field_name(), c.position()
+            ),
+            TableChange.DeleteColumn: lambda c: TableUpdateRequest.DeleteTableColumnRequest(
+                c.field_name(), c.if_exists()
+            ),
+            TableChange.UpdateColumnNullability: lambda c: TableUpdateRequest.UpdateTableColumnNullabilityRequest(
+                c.field_name(), c.nullable()
+            ),
+            TableChange.UpdateColumnAutoIncrement: lambda c: TableUpdateRequest.UpdateColumnAutoIncrementRequest(
+                c.field_name(), c.auto_increment()
+            ),
+        }
+
+        for change_type, handler in column_change_handlers.items():
+            if isinstance(change, change_type):
+                return handler(change)
+        return None
 
     def _to_column_dto(self, column: Column):
         """Convert a Column to ColumnDTO."""
-        # This is a placeholder - actual implementation would depend on the Column structure
-        from gravitino.dto.rel.column_dto import ColumnDTO
         return ColumnDTO(
             _name=column.name(),
             _data_type=column.data_type(),
@@ -398,20 +448,24 @@ class RelationalCatalog(BaseSchemaCatalog):
 
     def _to_sort_order_dto(self, sort_order: SortOrder):
         """Convert a SortOrder to SortOrderDTO."""
-        from gravitino.dto.rel.sort_order_dto import SortOrderDTO
-        return SortOrderDTO()  # Placeholder implementation
+        # Placeholder - would need actual sort_order properties
+        # For now, return None as this is a placeholder implementation
+        return None
 
     def _to_distribution_dto(self, distribution: Distribution):
         """Convert a Distribution to DistributionDTO."""
-        from gravitino.dto.rel.distribution_dto import DistributionDTO
-        return DistributionDTO()  # Placeholder implementation
+        # Placeholder - would need actual distribution properties
+        # For now, return None as this is a placeholder implementation
+        return None
 
     def _to_partitioning_dto(self, partitioning: Transform):
         """Convert a Transform to Partitioning."""
-        from gravitino.dto.rel.partitioning.partitioning import Partitioning
-        return Partitioning()  # Placeholder implementation
+        # Placeholder - would need actual partitioning properties
+        # For now, return None as this is a placeholder implementation
+        return None
 
     def _to_index_dto(self, index: Index):
         """Convert an Index to IndexDTO."""
-        from gravitino.dto.rel.indexes.index_dto import IndexDTO
-        return IndexDTO()  # Placeholder implementation
+        # Placeholder - would need actual index properties
+        # For now, return None as this is a placeholder implementation
+        return None

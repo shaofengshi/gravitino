@@ -29,7 +29,7 @@ from gravitino.namespace import Namespace
 from gravitino.utils import HTTPClient
 
 
-class RelationalTable(Table):
+class RelationalTable(Table):  # pylint: disable=too-many-instance-attributes
     """
     A relational table implementation that represents a table in a relational catalog.
     """
