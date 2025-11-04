@@ -77,9 +77,33 @@ class HDFSContainer(BaseContainer):
             raise GravitinoRuntimeException(
                 "GRAVITINO_CI_HIVE_DOCKER_IMAGE env variable is not set."
             )
-        environment = {"HADOOP_USER_NAME": "anonymous"}
+        environment = {"HADOOP_USER_NAME": "hadoop"}
 
-        super().__init__(container_name, image_name, environment)
+        # Expose Hive metastore port to host
+        ports = {"9083/tcp": 9083, "9000/tcp": 9000}
+
+        super().__init__(container_name, image_name, environment, ports=ports)
 
         asyncio.run(check_hdfs_container_status(self._container))
         self._fetch_ip()
+        self._fix_permissions()
+
+    def _fix_permissions(self):
+        """Fix HDFS permissions to allow write access for all users."""
+        try:
+            # Make the warehouse directory writable by all users
+            commands = [
+                ["hdfs", "dfs", "-chmod", "-R", "777", "/user/hive/warehouse"],
+                ["hdfs", "dfs", "-chmod", "-R", "777", "/user/hive"],
+                ["hdfs", "dfs", "-chmod", "-R", "777", "/user"],
+            ]
+
+            for cmd in commands:
+                result = self._container.exec_run(cmd)
+                if result.exit_code != 0:
+                    logger.warning("Failed to execute %s: %s", cmd, result.output)
+                else:
+                    logger.info("Successfully executed: %s", cmd)
+
+        except Exception as e:
+            logger.warning("Failed to fix HDFS permissions: %s", e)

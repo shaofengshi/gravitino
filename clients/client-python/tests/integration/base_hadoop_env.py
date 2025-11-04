@@ -69,7 +69,7 @@ class BaseHadoopEnvironment:
     @classmethod
     def _configure_hadoop_environment(cls):
         logger.info("Configure hadoop environment.")
-        os.putenv("HADOOP_USER_NAME", "anonymous")
+        os.putenv("HADOOP_USER_NAME", "hadoop")
         os.putenv("HADOOP_HOME", f"{cls.PYTHON_BUILD_PATH}/hadoop/{cls.BASE_DIR_NAME}")
         conf_path = f"{cls.PYTHON_BUILD_PATH}/hadoop/{cls.BASE_DIR_NAME}/etc/hadoop"
         os.putenv("HADOOP_CONF_DIR", conf_path)

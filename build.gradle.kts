@@ -148,9 +148,9 @@ allprojects {
       param.environment("GRAVITINO_ROOT_DIR", project.rootDir.path)
       param.environment("IT_PROJECT_DIR", project.buildDir.path)
       // If the environment variable `HADOOP_USER_NAME` is not customized in submodule,
-      // then set it to "anonymous"
+      // then set it to "hadoop"
       if (param.environment["HADOOP_USER_NAME"] == null) {
-        param.environment("HADOOP_USER_NAME", "anonymous")
+        param.environment("HADOOP_USER_NAME", "hadoop")
       }
       param.environment("HADOOP_HOME", "/tmp")
       param.environment("PROJECT_VERSION", project.version)

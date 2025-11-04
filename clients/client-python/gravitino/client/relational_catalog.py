@@ -379,11 +379,11 @@ class RelationalCatalog(BaseSchemaCatalog):
     def _handle_table_level_changes(self, change: TableChange):
         """Handle table-level changes."""
         if isinstance(change, TableChange.RenameTable):
-            return TableUpdateRequest.RenameTableRequest(
-                change.get_new_name(), None
-            )
+            return TableUpdateRequest.RenameTableRequest(change.get_new_name(), None)
         if isinstance(change, TableChange.UpdateComment):
-            return TableUpdateRequest.UpdateTableCommentRequest(change.get_new_comment())
+            return TableUpdateRequest.UpdateTableCommentRequest(
+                change.get_new_comment()
+            )
         if isinstance(change, TableChange.SetProperty):
             return TableUpdateRequest.SetTablePropertyRequest(
                 change.get_property(), change.get_value()

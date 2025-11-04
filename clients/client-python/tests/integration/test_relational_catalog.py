@@ -38,6 +38,7 @@ from gravitino.exceptions.base import (
     TableAlreadyExistsException,
 )
 from tests.integration.integration_test_env import IntegrationTestEnv
+from tests.integration.containers.hdfs_container import HDFSContainer
 
 logger = logging.getLogger(__name__)
 
@@ -73,10 +74,18 @@ class TestRelationalCatalog(IntegrationTestEnv):
     )
     gravitino_client: GravitinoClient = None
     catalog: Catalog = None
+    hdfs_container: HDFSContainer = None
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+
+        # Start the HDFS/Hive container
+        cls.hdfs_container = HDFSContainer()
+        # Use localhost since we're exposing the port to the host
+        hive_metastore_uri = "thrift://localhost:9083"
+
+        logger.info("Started Hive container with metastore URI: %s", hive_metastore_uri)
 
         cls.gravitino_admin_client = GravitinoAdminClient(uri="http://localhost:8090")
         cls.gravitino_admin_client.create_metalake(
@@ -93,7 +102,7 @@ class TestRelationalCatalog(IntegrationTestEnv):
             catalog_type=Catalog.Type.RELATIONAL,
             provider=cls.catalog_provider,
             comment="Test relational catalog",
-            properties={"metastore.uris": "thrift://hive:9083"},
+            properties={"metastore.uris": hive_metastore_uri},
         )
 
     @classmethod
@@ -103,6 +112,13 @@ class TestRelationalCatalog(IntegrationTestEnv):
             cls.gravitino_admin_client.drop_metalake(name=cls.metalake_name, force=True)
         except Exception as e:  # pylint: disable=broad-exception-caught
             logger.warning("Failed to clean up class-level resources: %s", e)
+
+        # Clean up the HDFS/Hive container
+        if cls.hdfs_container:
+            try:
+                cls.hdfs_container.close()
+            except Exception as e:  # pylint: disable=broad-exception-caught
+                logger.warning("Failed to clean up HDFS container: %s", e)
 
         super().tearDownClass()
 

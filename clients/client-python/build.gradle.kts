@@ -83,7 +83,9 @@ fun waitForServerIsReady(host: String = "http://localhost", port: Int = 8090, ti
 }
 
 fun gravitinoServer(operation: String) {
-    val process = ProcessBuilder("${project.rootDir.path}/distribution/package/bin/gravitino.sh", operation).start()
+    val processBuilder = ProcessBuilder("${project.rootDir.path}/distribution/package/bin/gravitino.sh", operation)
+    processBuilder.environment()["HADOOP_USER_NAME"] = "hadoop"
+    val process = processBuilder.start()
     val exitCode = process.waitFor()
     if (exitCode == 0) {
       val currentContext = process.inputStream.bufferedReader().readText()

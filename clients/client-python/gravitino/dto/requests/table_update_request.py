@@ -35,7 +35,9 @@ class TableUpdateRequest(ABC):
         """Request to rename a table."""
 
         _new_name: str = field(metadata=config(field_name="newName"))
-        _new_schema_name: Optional[str] = field(default=None, metadata=config(field_name="newSchemaName"))
+        _new_schema_name: Optional[str] = field(
+            default=None, metadata=config(field_name="newSchemaName")
+        )
         _type: str = field(default="rename", metadata=config(field_name="@type"))
 
         def validate(self):
@@ -75,7 +77,9 @@ class TableUpdateRequest(ABC):
         """Request to remove table property."""
 
         _property: str = field(metadata=config(field_name="property"))
-        _type: str = field(default="removeProperty", metadata=config(field_name="@type"))
+        _type: str = field(
+            default="removeProperty", metadata=config(field_name="@type")
+        )
 
         def validate(self):
             """Validates the fields of the request."""

@@ -24,7 +24,7 @@ services:
       - trino-net
     container_name: trino-ci-hive
     environment:
-      - HADOOP_USER_NAME=anonymous
+      - HADOOP_USER_NAME=hadoop
       - HIVE_RUNTIME_VERSION=${HIVE_RUNTIME_VERSION:-hive2}
       - TRINO_CONNECTOR_TEST=${TRINO_CONNECTOR_TEST:-false}
     entrypoint:  /bin/bash /tmp/hive/init.sh
@@ -84,7 +84,7 @@ services:
       - trino-net
     container_name: trino-ci-trino
     environment:
-      - HADOOP_USER_NAME=anonymous
+      - HADOOP_USER_NAME=hadoop
       - GRAVITINO_HOST_IP=host.docker.internal
       - GRAVITINO_HOST_PORT=${GRAVITINO_SERVER_PORT:-8090}
       - GRAVITINO_METALAKE_NAME=test
@@ -119,7 +119,7 @@ services:
     deploy:
       replicas: ${TRINO_WORKER_NUM:-0}
     environment:
-      - HADOOP_USER_NAME=anonymous
+      - HADOOP_USER_NAME=hadoop
       - GRAVITINO_HOST_IP=host.docker.internal
       - GRAVITINO_HOST_PORT=${GRAVITINO_SERVER_PORT:-8090}
       - GRAVITINO_METALAKE_NAME=test
