@@ -16,47 +16,71 @@
 # under the License.
 
 from abc import ABC
+from dataclasses import dataclass, field
 from typing import Optional
 
-from dataclasses_json import DataClassJsonMixin
+from dataclasses_json import config, DataClassJsonMixin
 
 from gravitino.api.rel.types.type import Type
 from gravitino.api.rel.table_change import TableChange
 from gravitino.dto.rel.expressions.func_expression_dto import FuncExpressionDTO
+from gravitino.rest.rest_message import RESTRequest
 
 
 class TableUpdateRequest(ABC):
     """Base class for table update requests."""
 
-    class RenameTableRequest(DataClassJsonMixin):
+    @dataclass
+    class RenameTableRequest(RESTRequest):
         """Request to rename a table."""
 
-        def __init__(self, new_name: str, new_schema_name: Optional[str] = None):
-            self._new_name = new_name
-            self._new_schema_name = new_schema_name
-            self._type = "rename"
+        _new_name: str = field(metadata=config(field_name="newName"))
+        _new_schema_name: Optional[str] = field(default=None, metadata=config(field_name="newSchemaName"))
+        _type: str = field(default="rename", metadata=config(field_name="@type"))
 
-    class UpdateTableCommentRequest(DataClassJsonMixin):
+        def validate(self):
+            """Validates the fields of the request."""
+            if not self._new_name:
+                raise ValueError('"new_name" field is required and cannot be empty')
+
+    @dataclass
+    class UpdateTableCommentRequest(RESTRequest):
         """Request to update table comment."""
 
-        def __init__(self, new_comment: str):
-            self._new_comment = new_comment
-            self._type = "updateComment"
+        _new_comment: str = field(metadata=config(field_name="newComment"))
+        _type: str = field(default="updateComment", metadata=config(field_name="@type"))
 
-    class SetTablePropertyRequest(DataClassJsonMixin):
+        def validate(self):
+            """Validates the fields of the request."""
+            if not self._new_comment:
+                raise ValueError('"new_comment" field is required and cannot be empty')
+
+    @dataclass
+    class SetTablePropertyRequest(RESTRequest):
         """Request to set table property."""
 
-        def __init__(self, property_name: str, value: str):
-            self._property = property_name
-            self._value = value
-            self._type = "setProperty"
+        _property: str = field(metadata=config(field_name="property"))
+        _value: str = field(metadata=config(field_name="value"))
+        _type: str = field(default="setProperty", metadata=config(field_name="@type"))
 
-    class RemoveTablePropertyRequest(DataClassJsonMixin):
+        def validate(self):
+            """Validates the fields of the request."""
+            if not self._property:
+                raise ValueError('"property" field is required and cannot be empty')
+            if not self._value:
+                raise ValueError('"value" field is required and cannot be empty')
+
+    @dataclass
+    class RemoveTablePropertyRequest(RESTRequest):
         """Request to remove table property."""
 
-        def __init__(self, property_name: str):
-            self._property = property_name
-            self._type = "removeProperty"
+        _property: str = field(metadata=config(field_name="property"))
+        _type: str = field(default="removeProperty", metadata=config(field_name="@type"))
+
+        def validate(self):
+            """Validates the fields of the request."""
+            if not self._property:
+                raise ValueError('"property" field is required and cannot be empty')
 
     class AddTableColumnRequest(
         DataClassJsonMixin

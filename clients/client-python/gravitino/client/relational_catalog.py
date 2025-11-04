@@ -380,53 +380,53 @@ class RelationalCatalog(BaseSchemaCatalog):
         """Handle table-level changes."""
         if isinstance(change, TableChange.RenameTable):
             return TableUpdateRequest.RenameTableRequest(
-                change.new_name(), change.new_schema_name()
+                change.get_new_name(), None
             )
         if isinstance(change, TableChange.UpdateComment):
-            return TableUpdateRequest.UpdateTableCommentRequest(change.new_comment())
+            return TableUpdateRequest.UpdateTableCommentRequest(change.get_new_comment())
         if isinstance(change, TableChange.SetProperty):
             return TableUpdateRequest.SetTablePropertyRequest(
-                change.property(), change.value()
+                change.get_property(), change.get_value()
             )
         if isinstance(change, TableChange.RemoveProperty):
-            return TableUpdateRequest.RemoveTablePropertyRequest(change.property())
+            return TableUpdateRequest.RemoveTablePropertyRequest(change.get_property())
         return None
 
     def _handle_column_level_changes(self, change: TableChange):
         """Handle column-level changes."""
         column_change_handlers = {
             TableChange.AddColumn: lambda c: TableUpdateRequest.AddTableColumnRequest(
-                c.field_name(),
-                c.data_type(),
-                c.comment(),
-                c.position(),
-                c.nullable(),
-                c.auto_increment(),
-                c.default_value(),
+                c.get_field_name(),
+                c.get_data_type(),
+                c.get_comment(),
+                c.get_position(),
+                c.is_nullable(),
+                c.is_auto_increment(),
+                c.get_default_value(),
             ),
             TableChange.RenameColumn: lambda c: TableUpdateRequest.RenameTableColumnRequest(
-                c.field_name(), c.new_name()
+                c.get_field_name(), c.get_new_name()
             ),
             TableChange.UpdateColumnDefaultValue: lambda c: TableUpdateRequest.UpdateTableColumnDefaultValueRequest(
-                c.field_name(), c.new_default_value()
+                c.field_name(), c.get_new_default_value()
             ),
             TableChange.UpdateColumnType: lambda c: TableUpdateRequest.UpdateTableColumnTypeRequest(
-                c.field_name(), c.new_data_type()
+                c.field_name(), c.get_new_data_type()
             ),
             TableChange.UpdateColumnComment: lambda c: TableUpdateRequest.UpdateTableColumnCommentRequest(
-                c.field_name(), c.new_comment()
+                c.field_name(), c.get_new_comment()
             ),
             TableChange.UpdateColumnPosition: lambda c: TableUpdateRequest.UpdateTableColumnPositionRequest(
-                c.field_name(), c.position()
+                c.field_name(), c.get_position()
             ),
             TableChange.DeleteColumn: lambda c: TableUpdateRequest.DeleteTableColumnRequest(
-                c.field_name(), c.if_exists()
+                c.field_name(), c.get_if_exists()
             ),
             TableChange.UpdateColumnNullability: lambda c: TableUpdateRequest.UpdateTableColumnNullabilityRequest(
-                c.field_name(), c.nullable()
+                c.field_name(), c.get_nullable()
             ),
             TableChange.UpdateColumnAutoIncrement: lambda c: TableUpdateRequest.UpdateColumnAutoIncrementRequest(
-                c.field_name(), c.auto_increment()
+                c.field_name(), c.is_auto_increment()
             ),
         }
 

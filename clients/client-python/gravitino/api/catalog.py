@@ -147,13 +147,13 @@ class Catalog(Auditable):
             "Catalog does not support schema operations"
         )
 
-    def as_table_catalog(self) -> "TableCatalog":  # noqa: F821
+    def as_table_catalog(self) -> "RelationalCatalog":  # noqa: F821
         """
         Raises:
             UnsupportedOperationException if the catalog does not support table operations.
 
         Returns:
-            the {@link TableCatalog} if the catalog supports table operations.
+            the {@link RelationalCatalog} if the catalog supports table operations.
         """
         raise UnsupportedOperationException("Catalog does not support table operations")
 

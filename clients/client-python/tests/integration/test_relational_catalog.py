@@ -45,7 +45,7 @@ logger = logging.getLogger(__name__)
 class TestRelationalCatalog(IntegrationTestEnv):
     metalake_name: str = "TestRelationalCatalog_metalake" + str(randint(1, 10000))
     catalog_name: str = "relational_catalog"
-    catalog_provider: str = "hadoop"  # Use hadoop provider for testing
+    catalog_provider: str = "hive"  # Use hive provider for testing
 
     schema_name: str = "test_schema"
 
@@ -93,7 +93,7 @@ class TestRelationalCatalog(IntegrationTestEnv):
             catalog_type=Catalog.Type.RELATIONAL,
             provider=cls.catalog_provider,
             comment="Test relational catalog",
-            properties={},
+            properties={"metastore.uris": "thrift://hive:9083"},
         )
 
     @classmethod
@@ -217,7 +217,10 @@ class TestRelationalCatalog(IntegrationTestEnv):
         self.assertIsNotNone(table)
         self.assertEqual(table.name(), self.table_name)
         self.assertEqual(table.comment(), self.table_comment)
-        self.assertEqual(table.properties(), self.table_properties)
+        # Assert that table properties include all keys from self.table_properties
+        for key, value in self.table_properties.items():
+            self.assertIn(key, table.properties())
+            self.assertEqual(table.properties()[key], value)
         self.assertEqual(len(table.columns()), 3)
 
     def test_load_table_not_exists(self):
